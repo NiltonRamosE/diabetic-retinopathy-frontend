@@ -59,13 +59,13 @@ export const navSimpleMain: NavSimpleItem[] = [
   },
   {
     title: "Ver Predicción",
-    url: "/patient/prediccion",
+    url: "/patient/clasificador",
     icon: IconUsersPlus,
     allowedRoles: ["patient"]
   },
   {
     title: "Realizar Predicción",
-    url: "/doctor/prediccion",
+    url: "/doctor/clasificador",
     icon: IconUsersPlus,
     allowedRoles: ["doctor"]
   },
