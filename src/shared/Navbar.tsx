@@ -15,11 +15,11 @@ export const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { href: '#home', label: 'Inicio' },
-    { href: '#servicios', label: 'Servicios' },
-    { href: '#nosotros', label: 'Nosotros' },
-    { href: '#faqs', label: 'FAQs' },
-    { href: '#contacto', label: 'Contacto' },
+    { href: '/#home', label: 'Inicio' },
+    { href: '/#servicios', label: 'Servicios' },
+    { href: '/#nosotros', label: 'Nosotros' },
+    { href: '/#faqs', label: 'FAQs' },
+    { href: '/#contacto', label: 'Contacto' },
   ];
 
   return (
@@ -32,7 +32,7 @@ export const Navbar = () => {
     >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <a href="#home" className="flex items-center space-x-3 group">
+          <a href="/#home" className="flex items-center space-x-3 group">
             <div className="relative">
               <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full group-hover:bg-primary/30 transition-all" />
               <Eye className="h-9 w-9 text-primary relative z-10" />
@@ -62,13 +62,13 @@ export const Navbar = () => {
           <div className="hidden lg:flex items-center space-x-4">
             <ModeToggle />
             <a
-              href="#contacto"
+              href="/login"
               className="relative inline-flex items-center justify-center px-6 py-2.5 overflow-hidden font-semibold text-sm rounded-lg group"
             >
               <span className="absolute w-0 h-0 transition-all duration-500 ease-out bg-primary rounded-full group-hover:w-56 group-hover:h-56"></span>
               <span className="absolute inset-0 w-full h-full -mt-1 rounded-lg opacity-30 bg-linear-to-b from-transparent via-transparent to-primary"></span>
               <span className="relative text-primary-foreground bg-primary px-6 py-2.5 rounded-lg group-hover:bg-transparent transition-colors">
-                Agendar Cita
+                Iniciar Sesión
               </span>
             </a>
           </div>
@@ -102,11 +102,11 @@ export const Navbar = () => {
               </a>
             ))}
             <a
-              href="#contacto"
+              href="/login"
               onClick={() => setIsMenuOpen(false)}
               className="block w-full mt-4 px-4 py-3 bg-primary text-primary-foreground text-center rounded-lg font-semibold hover:bg-primary/90 transition-colors"
             >
-              Agendar Cita
+              Iniciar Sesión
             </a>
           </div>
         )}

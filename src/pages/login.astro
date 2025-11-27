@@ -1,15 +1,15 @@
 ---
 import ProtectedLayout from '@/layouts/ProtectedLayout.astro';
-import { LandingPage } from '@/landing/LandingPage';
+import { LoginPage } from '@/auth/LoginPage';
 const robots = ["index", "follow"];
-const title = "Clinica Oftalmológica Gismondi";
+const title = "Iniciar Sesión - Clinica Oftalmológica Gismondi";
 const description = "Clinica Oftalmológica Gismondi.";
 const keywords = ["Clinica", "Oftalmológica", "Gismondi", "Paciente", "Admin", "Doctor"];
-const url = "https://diabetic-retinopathy-frontend.vercel.app";
+const url = "https://diabetic-retinopathy-frontend.vercel.app/login";
 const imageOG = "/a.webp";
 const imagetwt = "/a.webp";
 ---
 
 <ProtectedLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
-	<LandingPage client:load/>
+	<LoginPage client:load/>
 </ProtectedLayout>
