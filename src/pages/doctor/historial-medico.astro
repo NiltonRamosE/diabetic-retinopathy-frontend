@@ -1,0 +1,15 @@
+---
+import ProtectedLayout from '@/layouts/ProtectedLayout.astro';
+import MedicalHistory  from '@/dashboard/doctor/MedicalHistory';
+const robots = ["noindex", "nofollow"];
+const title = "Historial Médico - Clinica Oftalmológica Gismondi";
+const description = "Clinica Oftalmológica Gismondi.";
+const keywords = ["Clinica", "Oftalmológica", "Gismondi", "Paciente", "Admin", "Doctor"];
+const url = "https://diabetic-retinopathy-frontend.vercel.app/doctor/historial-medico";
+const imageOG = "/a.webp";
+const imagetwt = "/a.webp";
+---
+
+<ProtectedLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+	<MedicalHistory client:load/>
+</ProtectedLayout>
