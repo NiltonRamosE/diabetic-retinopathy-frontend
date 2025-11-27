@@ -1,13 +1,27 @@
-"use client"
-import React from "react";
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from '@/shared/ModeToggle';
+// src/landing/LandingPage.tsx
+import React from 'react';
+import { Navbar } from '@/shared/Navbar';
+import { Footer } from '@/shared/Footer';
+import { HeroSection } from './sections/HeroSection';
+import { MessageSection } from './sections/MessageSection';
+import { ProposalSection } from './sections/ProposalSection';
+import { FAQSection } from './sections/FAQSection';
+import { ContactSection } from './sections/ContactSection';
 
-export function LandingPage() {
+export const LandingPage = () => {
   return (
-    <section className="">
-      <Button>Button</Button>
-      <ModeToggle />
-    </section>
+    <div className="min-h-screen bg-background text-foreground">
+      <Navbar />
+      <main>
+        <HeroSection />
+        <MessageSection />
+        <ProposalSection />
+        <FAQSection />
+        <ContactSection />
+      </main>
+      <Footer />
+    </div>
   );
 };
+
+export default LandingPage;
