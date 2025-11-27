@@ -10,6 +10,7 @@ export const config = {
   endpoints: {
     auth:{
       login: "/api/auth/login",
+      register: "/api/auth/register"
     }
   },
 };
