@@ -52,65 +52,41 @@ export const navMainCollapse: NavItem[] = [];
 
 export const navSimpleMain: NavSimpleItem[] = [
   {
-    title: "Grupos Disponibles",
-    url: "/academico/grupos/disponible",
+    title: "Ver Diagnostico",
+    url: "/patient/diagnostico",
     icon: IconUsersPlus,
-    allowedRoles: ["student"]
+    allowedRoles: ["patient"]
   },
   {
-    title: "Mis Grupos Académicos", 
-    url: "/academico/grupos/joined",
-    icon: IconUserCheck,
-    allowedRoles: ["student"]
+    title: "Ver Predicción",
+    url: "/patient/prediccion",
+    icon: IconUsersPlus,
+    allowedRoles: ["patient"]
   },
   {
-    title: "Grupos Terminados",
-    url: "/academico/grupos/completado",
-    icon: IconCircleCheck,
-    allowedRoles: ["student"]
+    title: "Realizar Predicción",
+    url: "/doctor/prediccion",
+    icon: IconUsersPlus,
+    allowedRoles: ["doctor"]
   },
   {
-    title: "Grupos Académicos",
-    url: "/academico/grupos/teach", 
-    icon: IconChalkboard,
-    allowedRoles: ["teacher"]
-  },
-  {
-    title: "Encuestas",
-    url: "/academico/encuesta",
-    icon: IconChecklist,
-    allowedRoles: ["student"]
-  },
-  {
-    title: "Tutorias",
-    url: "/academico/tutoria",
-    icon: IconSchool,
-    allowedRoles: ["student"]
-  },
-  {
-    title: "Foros",
-    url: "/academico/foros",
-    icon: IconSchool,
-    allowedRoles: ["student"]
-  },
-  {
-    title: "Atención",
-    url: "/academico/atencion",
-    icon: IconReport,
-    allowedRoles: ["student"]
+    title: "Ver Historial médico",
+    url: "/doctor/historial-medico",
+    icon: IconUsersPlus,
+    allowedRoles: ["doctor"]
   },
 ];
 
 export const navMainOptions: NavSimpleItem[] = [
    {
     title: "Configuración",
-    url: "/academico/configuracion",
+    url: "#",
     icon: IconSettings,
     type: 'link'
   },
   {
     title: "Ayuda", 
-    url: "/academico/ayuda",
+    url: "#",
     icon: IconHelp,
     type: 'link'
   },
