@@ -1,11 +1,15 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import ProtectedLayout from '@/layouts/ProtectedLayout.astro';
+import { LandingPage } from '@/landing/LandingPage';
+const robots = ["index", "follow"];
+const title = "Incadev - Instituto de Capacitación y Desarrollo Virtual";
+const description = "Incadev es un instituto que ofrece servicios de capacitación y desarrollo virtual para estudiantes y profesionales.";
+const keywords = ["Incadev", "Instituto de Capacitación y Desarrollo Virtual", "Capacitación", "Desarrollo Virtual", "Estudiantes", "Profesionales"];
+const url = "https://instituto.cetivirgendelapuerta.com/academico/";
+const imageOG = "/academico/incadev_isologotipo.webp";
+const imagetwt = "/academico/incadev_isologotipo.webp";
 ---
 
-<Layout>
-	<Welcome />
-</Layout>
+<ProtectedLayout {robots} {title} {description} {keywords} {url} {imageOG} {imagetwt}>
+	<LandingPage client:load/>
+</ProtectedLayout>
