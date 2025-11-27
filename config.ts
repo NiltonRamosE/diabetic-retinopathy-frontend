@@ -8,5 +8,8 @@ export const config = {
   apiUrl:"http://127.0.0.1:8000",
   environment:"development",
   endpoints: {
+    auth:{
+      login: "/api/auth/login",
+    }
   },
 };
