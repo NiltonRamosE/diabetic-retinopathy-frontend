@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { config } from "config";
-import { Upload, Image as ImageIcon, Eye, RotateCcw, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Upload, Image as ImageIcon, Eye, RotateCcw, AlertCircle, CheckCircle2, FileText } from "lucide-react";
 import { useAuth } from "@/dashboard/hooks/useAuth";
-// Mapeo de las predicciones a nombres más legibles
+
 const predictionLabels: { [key: string]: { label: string; description: string; color: string } } = {
   'No_DR': {
     label: 'Sin Retinopatía Diabética',
@@ -37,15 +38,25 @@ const predictionLabels: { [key: string]: { label: string; description: string; c
   }
 };
 
-export default function Clasificator() {
+const predictionDescriptions: { [key: string]: string } = {
+  'No_DR': 'El análisis de retinopatía diabética no muestra signos de la enfermedad. Se recomienda continuar con controles anuales y mantener un buen control glucémico.',
+  'Mild': 'Se detectaron microaneurismas característicos de retinopatía diabética leve. Se sugiere seguimiento en 6-12 meses y control estricto de la diabetes.',
+  'Moderate': 'Presencia de microaneurismas, hemorragias puntiformes y exudados duros. Etapa moderada que requiere seguimiento cada 3-6 meses y posible tratamiento.',
+  'Severe': 'Múltiples hemorragias en forma de mancha, anomalías microvasculares intraretinianas. Etapa severa que necesita intervención médica y seguimiento cercano.',
+  'Proliferate_DR': 'Presencia de neovasos, hemorragias vítreas y tejido fibroso. Etapa proliferativa que requiere tratamiento urgente con láser o intervención quirúrgica.'
+};
 
+export default function Clasificator() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
   const [prediction, setPrediction] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [dni, setDni] = useState("");
+  const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
-  const { token } = useAuth();
+  const { token, profile } = useAuth();
 
   const handleImageSelect = (file: File) => {
     if (!file.type.startsWith('image/')) {
@@ -53,7 +64,7 @@ export default function Clasificator() {
       return;
     }
 
-    if (file.size > 10 * 1024 * 1024) { // 10MB limit
+    if (file.size > 10 * 1024 * 1024) {
       toast.error("La imagen es demasiado grande. Máximo 10MB");
       return;
     }
@@ -128,19 +139,81 @@ export default function Clasificator() {
     }
   };
 
+  const handleGenerateReport = async () => {
+    if (!dni.trim()) {
+      toast.error("Por favor, ingresa el DNI del paciente");
+      return;
+    }
+
+    if (!prediction) {
+      toast.error("Primero debes clasificar una imagen");
+      return;
+    }
+
+    if (!profile) {
+      toast.error("No se pudo obtener la información del médico");
+      return;
+    }
+
+    setIsGeneratingReport(true);
+
+    try {
+      const tokenWithoutQuotes = token?.replace(/^"|"$/g, '');
+      const doctorId = profile.id;
+
+      const reportData = {
+        dni: dni.trim(),
+        doctor_id: doctorId,
+        description: predictionDescriptions[prediction] || `Diagnóstico: ${prediction}`
+      };
+
+      const response = await fetch(`${config.apiUrl}${config.endpoints.prediction.report}`, {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${tokenWithoutQuotes}`,
+        },
+        body: JSON.stringify(reportData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        toast.success("Reporte generado exitosamente");
+        setShowReportModal(false);
+        setDni("");
+      } else {
+        const errorData = await response.json();
+        toast.error(`Error: ${errorData.message || "No se pudo generar el reporte"}`);
+      }
+    } catch (error) {
+      console.error("Report generation error:", error);
+      toast.error("Error al conectar con el servidor");
+    } finally {
+      setIsGeneratingReport(false);
+    }
+  };
+
   const resetForm = () => {
     setSelectedImage(null);
     setPreviewUrl("");
     setPrediction(null);
+    setDni("");
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
   };
 
+  const openReportModal = () => {
+    if (!prediction) {
+      toast.error("Primero debes clasificar una imagen");
+      return;
+    }
+    setShowReportModal(true);
+  };
+
   return (
     <AcademicLayout title="Dashboard: Predicciones">
       <div className="flex flex-1 flex-col gap-6 p-6">
-        {/* Header */}
         <div className="flex flex-col gap-2">
           <h1 className="text-3xl font-bold tracking-tight">Clasificador de Retinopatía Diabética</h1>
           <p className="text-muted-foreground">
@@ -149,7 +222,6 @@ export default function Clasificator() {
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {/* Panel de carga de imagen */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -161,7 +233,6 @@ export default function Clasificator() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {/* Área de drop */}
               <div
                 className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
                   dragOver 
@@ -205,7 +276,6 @@ export default function Clasificator() {
                 )}
               </div>
 
-              {/* Botones de acción */}
               <div className="flex gap-3">
                 <Button 
                   onClick={handleClassify} 
@@ -234,10 +304,22 @@ export default function Clasificator() {
                   Reiniciar
                 </Button>
               </div>
+
+              {prediction && (
+                <div className="pt-4 border-t">
+                  <Button 
+                    onClick={openReportModal}
+                    className="w-full"
+                    variant="secondary"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    Generar Reporte
+                  </Button>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          {/* Panel de resultados */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -260,7 +342,6 @@ export default function Clasificator() {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {/* Indicador de resultado */}
                   <div className={`rounded-lg p-4 border-l-4 ${
                     prediction === 'No_DR' ? 'border-l-green-500 bg-green-50 dark:bg-green-950/20' :
                     prediction === 'Mild' ? 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20' :
@@ -281,7 +362,6 @@ export default function Clasificator() {
                     </div>
                   </div>
 
-                  {/* Información adicional */}
                   <div className="space-y-3">
                     <h4 className="font-medium">Recomendaciones:</h4>
                     <ul className="space-y-2 text-sm">
@@ -328,7 +408,83 @@ export default function Clasificator() {
           </Card>
         </div>
 
-        {/* Información adicional */}
+        <Dialog open={showReportModal} onOpenChange={setShowReportModal}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Generar Reporte Médico
+              </DialogTitle>
+              <DialogDescription>
+                Ingresa el DNI del paciente para generar el reporte con el diagnóstico de retinopatía diabética.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="dni">DNI del Paciente</Label>
+                <Input
+                  id="dni"
+                  type="text"
+                  placeholder="Ej: 18007564"
+                  value={dni}
+                  onChange={(e) => setDni(e.target.value)}
+                  disabled={isGeneratingReport}
+                />
+              </div>
+
+              {prediction && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Resumen del Diagnóstico</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pb-3">
+                    <div className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Resultado:</span>
+                        <span className="font-medium">{predictionLabels[prediction]?.label}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Código:</span>
+                        <span className="font-medium">{prediction}</span>
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-2">
+                        {predictionDescriptions[prediction]}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setShowReportModal(false)}
+                disabled={isGeneratingReport}
+              >
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleGenerateReport}
+                disabled={!dni.trim() || isGeneratingReport}
+              >
+                {isGeneratingReport ? (
+                  <>
+                    <RotateCcw className="h-4 w-4 animate-spin mr-2" />
+                    Generando...
+                  </>
+                ) : (
+                  <>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Generar Reporte
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
         <Card>
           <CardHeader>
             <CardTitle>Acerca del Clasificador</CardTitle>
