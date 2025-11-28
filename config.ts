@@ -17,6 +17,9 @@ export const config = {
     },
     medicalHistory:{
       getByDNI: "/api/medical-histories/showByDni",
+    },
+    diagnosis: {
+      getByPatientId: "/api/diagnoses/patient/:patientId",
     }
   },
 };
