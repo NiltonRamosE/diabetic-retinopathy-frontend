@@ -11,6 +11,9 @@ export const config = {
     auth:{
       login: "/api/auth/login",
       register: "/api/auth/register"
+    },
+    prediction:{
+      classify: "/api/classify-image",
     }
   },
 };
