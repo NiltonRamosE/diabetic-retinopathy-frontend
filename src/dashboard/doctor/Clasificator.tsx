@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { config } from "config";
-import { Upload, Image as ImageIcon, Eye, RotateCcw, AlertCircle, CheckCircle2, FileText } from "lucide-react";
+import { Upload, Image as ImageIcon, Eye, RotateCcw, AlertCircle, CheckCircle2, FileText, BarChart } from "lucide-react";
 import { useAuth } from "@/dashboard/hooks/useAuth";
 
 const predictionLabels: { [key: string]: { label: string; description: string; color: string } } = {
@@ -46,10 +46,18 @@ const predictionDescriptions: { [key: string]: string } = {
   'Proliferate_DR': 'Presencia de neovasos, hemorragias vítreas y tejido fibroso. Etapa proliferativa que requiere tratamiento urgente con láser o intervención quirúrgica.'
 };
 
+// Interfaz para la nueva estructura de respuesta
+interface PredictionResponse {
+  prediction: {
+    confidence: number;
+    label: string;
+  };
+}
+
 export default function Clasificator() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
-  const [prediction, setPrediction] = useState<string | null>(null);
+  const [prediction, setPrediction] = useState<PredictionResponse['prediction'] | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
@@ -124,7 +132,7 @@ export default function Clasificator() {
       });
 
       if (response.ok) {
-        const data = await response.json();
+        const data: PredictionResponse = await response.json();
         setPrediction(data.prediction);
         toast.success("Imagen clasificada exitosamente");
       } else {
@@ -164,7 +172,7 @@ export default function Clasificator() {
       const reportData = {
         dni: dni.trim(),
         doctor_id: doctorId,
-        description: predictionDescriptions[prediction] || `Diagnóstico: ${prediction}`
+        description: predictionDescriptions[prediction.label] || `Diagnóstico: ${prediction.label}`
       };
 
       const response = await fetch(`${config.apiUrl}${config.endpoints.prediction.report}`, {
@@ -209,6 +217,15 @@ export default function Clasificator() {
       return;
     }
     setShowReportModal(true);
+  };
+
+  // Función para obtener el color de la barra de confianza basado en el porcentaje
+  const getConfidenceColor = (confidence: number) => {
+    if (confidence >= 80) return 'bg-green-500';
+    if (confidence >= 60) return 'bg-blue-500';
+    if (confidence >= 40) return 'bg-yellow-500';
+    if (confidence >= 20) return 'bg-orange-500';
+    return 'bg-red-500';
   };
 
   return (
@@ -342,58 +359,77 @@ export default function Clasificator() {
                 </div>
               ) : (
                 <div className="space-y-4">
+                  {/* Indicador de resultado con confianza */}
                   <div className={`rounded-lg p-4 border-l-4 ${
-                    prediction === 'No_DR' ? 'border-l-green-500 bg-green-50 dark:bg-green-950/20' :
-                    prediction === 'Mild' ? 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20' :
-                    prediction === 'Moderate' ? 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' :
-                    prediction === 'Severe' ? 'border-l-orange-500 bg-orange-50 dark:bg-orange-950/20' :
+                    prediction.label === 'No_DR' ? 'border-l-green-500 bg-green-50 dark:bg-green-950/20' :
+                    prediction.label === 'Mild' ? 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20' :
+                    prediction.label === 'Moderate' ? 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20' :
+                    prediction.label === 'Severe' ? 'border-l-orange-500 bg-orange-50 dark:bg-orange-950/20' :
                     'border-l-red-500 bg-red-50 dark:bg-red-950/20'
                   }`}>
                     <div className="flex items-center gap-3">
-                      <div className={`h-3 w-3 rounded-full ${predictionLabels[prediction]?.color}`} />
-                      <div>
+                      <div className={`h-3 w-3 rounded-full ${predictionLabels[prediction.label]?.color}`} />
+                      <div className="flex-1">
                         <h3 className="font-semibold text-lg">
-                          {predictionLabels[prediction]?.label || prediction}
+                          {predictionLabels[prediction.label]?.label || prediction.label}
                         </h3>
                         <p className="text-sm text-muted-foreground mt-1">
-                          {predictionLabels[prediction]?.description}
+                          {predictionLabels[prediction.label]?.description}
                         </p>
+                        
+                        {/* Barra de confianza */}
+                        <div className="mt-3 space-y-2">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <BarChart className="h-3 w-3" />
+                              Confianza del modelo:
+                            </span>
+                            <span className="font-medium">{prediction.confidence.toFixed(2)}%</span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-2 dark:bg-gray-700">
+                            <div 
+                              className={`h-2 rounded-full ${getConfidenceColor(prediction.confidence)} transition-all duration-500`}
+                              style={{ width: `${prediction.confidence}%` }}
+                            ></div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
 
+                  {/* Información adicional */}
                   <div className="space-y-3">
                     <h4 className="font-medium">Recomendaciones:</h4>
                     <ul className="space-y-2 text-sm">
-                      {prediction === 'No_DR' && (
+                      {prediction.label === 'No_DR' && (
                         <>
                           <li>✅ Continúa con tus chequeos regulares anuales</li>
                           <li>✅ Mantén un buen control de tus niveles de glucosa</li>
                           <li>✅ Sigue un estilo de vida saludable</li>
                         </>
                       )}
-                      {prediction === 'Mild' && (
+                      {prediction.label === 'Mild' && (
                         <>
                           <li>🟡 Programa un seguimiento en 6-12 meses</li>
                           <li>🟡 Controla cuidadosamente tu diabetes</li>
                           <li>🟡 Consulta con tu oftalmólogo</li>
                         </>
                       )}
-                      {prediction === 'Moderate' && (
+                      {prediction.label === 'Moderate' && (
                         <>
                           <li>🟠 Consulta con un especialista en 3-6 meses</li>
                           <li>🟠 Considera tratamiento preventivo</li>
                           <li>🟠 Monitorea tu visión regularmente</li>
                         </>
                       )}
-                      {prediction === 'Severe' && (
+                      {prediction.label === 'Severe' && (
                         <>
                           <li>🔴 Busca atención médica inmediata</li>
                           <li>🔴 Tratamiento con láser puede ser necesario</li>
                           <li>🔴 Seguimiento estrecho requerido</li>
                         </>
                       )}
-                      {prediction === 'Proliferate_DR' && (
+                      {prediction.label === 'Proliferate_DR' && (
                         <>
                           <li>🚨 Tratamiento urgente necesario</li>
                           <li>🚨 Alto riesgo de pérdida de visión</li>
@@ -442,14 +478,18 @@ export default function Clasificator() {
                     <div className="space-y-2">
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Resultado:</span>
-                        <span className="font-medium">{predictionLabels[prediction]?.label}</span>
+                        <span className="font-medium">{predictionLabels[prediction.label]?.label}</span>
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Código:</span>
-                        <span className="font-medium">{prediction}</span>
+                        <span className="font-medium">{prediction.label}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Confianza:</span>
+                        <span className="font-medium">{prediction.confidence.toFixed(2)}%</span>
                       </div>
                       <div className="text-sm text-muted-foreground mt-2">
-                        {predictionDescriptions[prediction]}
+                        {predictionDescriptions[prediction.label]}
                       </div>
                     </div>
                   </CardContent>
