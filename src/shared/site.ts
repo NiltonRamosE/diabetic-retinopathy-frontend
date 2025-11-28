@@ -54,25 +54,19 @@ export const navSimpleMain: NavSimpleItem[] = [
   {
     title: "Ver Diagnostico",
     url: "/patient/diagnostico",
-    icon: IconUsersPlus,
-    allowedRoles: ["patient"]
-  },
-  {
-    title: "Ver Predicción",
-    url: "/patient/clasificador",
-    icon: IconUsersPlus,
+    icon: IconReport,
     allowedRoles: ["patient"]
   },
   {
     title: "Realizar Predicción",
     url: "/doctor/clasificador",
-    icon: IconUsersPlus,
+    icon: IconDatabase,
     allowedRoles: ["doctor"]
   },
   {
     title: "Ver Historial médico",
     url: "/doctor/historial-medico",
-    icon: IconUsersPlus,
+    icon: IconUserCheck,
     allowedRoles: ["doctor"]
   },
 ];
