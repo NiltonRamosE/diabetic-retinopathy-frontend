@@ -14,6 +14,9 @@ export const config = {
     },
     prediction:{
       classify: "/api/classify-image",
+    },
+    medicalHistory:{
+      getByDNI: "/api/medical-histories/showByDni",
     }
   },
 };
