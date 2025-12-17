@@ -19,16 +19,6 @@ export function SiteHeader({title = "Dashboard: Clínica Oftalmológica Gismondi
         <h1 className="text-base font-medium">{title}</h1>
         <div className="ml-auto flex items-center gap-2">
           <ModeToggle />
-          <Button variant="ghost" asChild size="sm" className="hidden sm:flex">
-            <a
-              href="https://github.com/NiltonRamosE/diabetic-retinopathy-frontend"
-              rel="noopener noreferrer"
-              target="_blank"
-              className="dark:text-foreground"
-            >
-              GitHub
-            </a>
-          </Button>
         </div>
       </div>
     </header>
